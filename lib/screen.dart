@@ -15,6 +15,7 @@ class Screen extends StatefulWidget {
 }
 
 class _ScreenState extends State<Screen> {
+
   var game;
   final DateModel models;
   _ScreenState(this.models, this.game);
@@ -138,11 +139,7 @@ class _ScreenState extends State<Screen> {
                               children: [
                                 GestureDetector(
                                   child: Center(
-                                    child: Text(
-                                      "${game[position]['home_team_name'].toString()}\t\t\t  ${game[position]['linescore']['r']['home'].toString()} : ",
-                                      style: TextStyle(
-                                          fontSize: 21.0, color: Colors.grey),
-                                    ),
+                                    child: winnersHome(game, position)
                                   ),
                                   onTap: () {
                                     _showMessage(
@@ -156,11 +153,7 @@ class _ScreenState extends State<Screen> {
                                 ),
                                 GestureDetector(
                                   child: Center(
-                                    child: Text(
-                                      " ${game[position]['linescore']['r']['away'].toString()} \t\t\t${game[position]['away_team_name'].toString()}",
-                                      style: TextStyle(
-                                          fontSize: 21.0, color: Colors.grey),
-                                    ),
+                                    child: winnersAway(game, position),
                                   ),
                                   onTap: () {
                                     _showMessage(
@@ -210,6 +203,49 @@ class _ScreenState extends State<Screen> {
       ],
     );
     showDialog(context: context, child: alert);
+  }
+  Widget winnersHome(List<dynamic> result, int position){
+    String home = result[position]['linescore']['r']['home'].toString();
+    String away = result[position]['linescore']['r']['away'].toString();
+    Widget bold;
+    if(int.parse(home) > int.parse(away)){
+      bold = Text(
+        "${result[position]['home_team_name'].toString()} \t${result[position]['linescore']['r']['home'].toString()}\t:",
+        style: TextStyle(
+            fontSize: 23.0, color: Colors.grey, fontWeight: FontWeight.w900),
+      );
+    }
+    else{
+      bold = Text(
+        " ${result[position]['home_team_name'].toString()} \t${result[position]['linescore']['r']['home'].toString()}\t",
+        style: TextStyle(
+            fontSize: 21.0, color: Colors.grey),
+      );
+    }
+    return bold;
+
+  }
+  //
+  Widget winnersAway(List<dynamic> result, int position){
+    String home = result[position]['linescore']['r']['home'].toString();
+    String away = result[position]['linescore']['r']['away'].toString();
+    Widget bold;
+    if(int.parse(home) < int.parse(away)){
+      bold = Text(
+        ":\t${result[position]['linescore']['r']['away'].toString()} \t${result[position]['away_team_name'].toString()}",
+        style: TextStyle(
+            fontSize: 23.0, color: Colors.grey, fontWeight: FontWeight.w900,),
+      );
+    }
+    else{
+      bold = Text(
+        "\t${result[position]['linescore']['r']['away'].toString()} \t${result[position]['away_team_name'].toString()}",
+        style: TextStyle(
+            fontSize: 21.0, color: Colors.grey),
+      );
+    }
+    return bold;
+
   }
 
   Widget Results(List<dynamic> results, Map team, String match) {
