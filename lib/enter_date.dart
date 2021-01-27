@@ -3,70 +3,40 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class EnterDate extends StatelessWidget {
-//  DateModel model;
- final TextEditingController _year= TextEditingController();
-  final TextEditingController _month = TextEditingController();
-  final TextEditingController  _day = TextEditingController();
- // List<Map> dateHolder = List();
-  String message ="";
-
-  void getDate(){
-    try{
-      if(_year.text == null && _year.text.length != 4 ||
-          _month.text != null && _month.text.length != 2 ||
-          _day.text != null && _day.text.length != 2){
-        message = "All fields are required with appropriate digits value";
-        //model =new DateModel("2015","07","28");
-//        model = new DateModel("2015", "07", "28");
-
-      }
-      else if(_year.text != null && _year.text.length == 4 ||
-          _month.text != null && _month.text.length == 2 ||
-          _day.text != null && _day.text.length == 2){
-        print(_year.text);
-//      dateHolder.add({"year": _year.text});
-//      dateHolder.add({"month": _month.text});
-//      dateHolder.add({"day": _day.text});
-        // model = new DateModel(_year.text,_month.text,_day.text);
-//        model.year=_year.text;
-//        model.month=_month.text;
-//        model.day=_day.text;
-//        model = new DateModel(_year.text, _month.text, _day.text);
-//        print(model.day);
-      }
-    } catch(e){
-      print(e.toString());
-    }
-
-  }
+  var _year= TextEditingController();
+  var _month = TextEditingController();
+  var _day = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text("ENTER DATE"),
         centerTitle: true,
+        backgroundColor: Colors.black54,
       ),
       body: Container(
-        color: Colors.blueGrey,
-        alignment: Alignment.topCenter,
+        color: Colors.grey,
+        alignment: Alignment.center,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Row(
               mainAxisSize: MainAxisSize.min,
+
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Expanded(child:
                 Container(
                   margin: EdgeInsets.only(left: 20.0),
                   child:  TextField(
                     decoration: InputDecoration(
-                      labelText: "YYYY",
-                      labelStyle: TextStyle(
-                        fontSize: 25.0,
-                          color: Colors.white70
-                      )
+                        labelText: "YYYY",
+                        labelStyle: TextStyle(
+                            fontSize: 25.0,
+                            color: Colors.black54
+                        )
                     ),
-                    style: TextStyle(color: Colors.white70, fontSize: 25.0),
+                    style: TextStyle(color: Colors.black54, fontSize: 25.0),
                     keyboardType: TextInputType.number,
                     controller: _year,
                   ),
@@ -75,14 +45,14 @@ class EnterDate extends StatelessWidget {
                 Container(
                   child:  TextField(
                     decoration: InputDecoration(
-                      labelText: "MM",
+                        labelText: "MM",
                         labelStyle: TextStyle(
                             fontSize: 25.0,
-                            color: Colors.white70
+                            color: Colors.black54
                         )
                     ),
                     keyboardType: TextInputType.number,
-                    style: TextStyle(color: Colors.white70, fontSize: 25.0),
+                    style: TextStyle(color: Colors.black54, fontSize: 25.0),
                     controller: _month,
                   ),
                 )),
@@ -91,14 +61,14 @@ class EnterDate extends StatelessWidget {
                   margin: EdgeInsets.only(right: 20.0),
                   child:  TextField(
                     decoration: InputDecoration(
-                      labelText: "DD",
+                        labelText: "DD",
                         labelStyle: TextStyle(
                             fontSize: 25.0,
-                            color: Colors.white70
+                            color: Colors.black54
                         )
                     ),
                     keyboardType: TextInputType.number,
-                    style: TextStyle(color: Colors.white70, fontSize: 25.0),
+                    style: TextStyle(color: Colors.black54, fontSize: 25.0),
                     controller: _day,
                   ),
                 )),
@@ -109,26 +79,25 @@ class EnterDate extends StatelessWidget {
               title: FlatButton(onPressed: () {
                 //getDate();
 
-                if((_year.text == null && _year.text.length != 4) ||
-                    (_month.text == null && _month.text.length != 2) ||
-                    (_day.text == null && _day.text.length != 2)){
-                  _showMessage(context, Text("All the field is required to fill with appropriate values",
-                  style: TextStyle(fontSize: 20.0),));
+                if((_year.text == null || _year.text.length != 4) ||
+                    (_month.text == null || _month.text.length != 2) ||
+                    (_day.text == null || _day.text.length != 2)){
+                  _showMessage(context, Text("All the fields are required to be filled with appropriate values",
+                    style: TextStyle(fontSize: 20.0, color: Colors.red),));
                 }
                 else{
-//                  model = new DateModel(_year.text, _month.text, _day.text);
-                Navigator
-              .pop(context, {
-                  'year': _year.text,
-                  'month': _month.text,
-                  'day': _day.text
-                });}},
+                  Navigator.pop(context,  {
+                    'year': _year.text,
+                    'month': _month.text,
+                    'day': _day.text
+                  });
+                }},
                 child: Text("GET RESULT", style: TextStyle(
-                  fontSize: 22.0,
-                  fontStyle: FontStyle.italic
+                    fontSize: 22.0,
+                    fontStyle: FontStyle.normal
                 ),),
                 textColor: Colors.white70,
-                color: Colors.blue,
+                color: Colors.black54,
                 focusColor: Colors.amber,
               ),
             )
@@ -141,7 +110,7 @@ class EnterDate extends StatelessWidget {
   void _showMessage(BuildContext context, Widget message) {
     var alert = AlertDialog(
       title: Text(
-        "Details",
+        "Attention",
         style: TextStyle(color: Colors.white, fontSize: 20.0),
       ),
       backgroundColor: Colors.black,

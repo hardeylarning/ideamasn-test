@@ -1,188 +1,118 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:ideasman_test/date_model.dart';
+import 'package:http/http.dart' as http;
+import 'package:ideasman_test/enter_date.dart';
 
-final TextEditingController year = TextEditingController();
-final TextEditingController month = TextEditingController();
-final TextEditingController day = TextEditingController();
 
 class Screen extends StatefulWidget {
-  var game;
-  final DateModel models;
-  Screen({Key key, this.models, this.game}) : super(key: key);
+  Screen();
   @override
-  _ScreenState createState() => _ScreenState(models, game);
+  _ScreenState createState() => _ScreenState();
 }
 
 class _ScreenState extends State<Screen> {
+  static String _yearEntered;
+  static String _monthEntered;
+  static String _dayEntered;
 
-  var game;
-  final DateModel models;
-  _ScreenState(this.models, this.game);
-  @override
-  void initState() {
-    super.initState();
-    Screen(
-      game: game,
-    );
+  _ScreenState();
+
+  Future  _receiveModel (BuildContext context) async {
+    final Map model = await Navigator.push(context, MaterialPageRoute<Map>(
+        builder: (context){
+          return EnterDate();
+        }
+    ));
+
+    if(model != null && model.containsKey("year") ){
+      setState(() {
+        _yearEntered = model['year'];
+        _monthEntered = model['month'];
+        _dayEntered = model['day'];
+      });
+    }
+    else {
+      print("Nothing");
+    }
   }
-
   @override
   Widget build(BuildContext context) {
-//    models = ModalRoute.of(context).settings.arguments;
-    Widget favourite = Text("");
-    return Scaffold(
+    return new Scaffold(
         appBar: new AppBar(
-          title: new Text(
+          title: Text(
             "SCOREBOARD TEST",
           ),
           centerTitle: true,
           backgroundColor: Colors.black54,
+          actions: [
+            IconButton(icon: Icon(Icons.search), onPressed: (){
+              _receiveModel(context);
+            })
+          ],
         ),
         backgroundColor: Colors.black54,
-        body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0)),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Expanded(
-                    child: Container(
-                  margin: EdgeInsets.only(left: 20.0),
-                  child: TextField(
-                    decoration: InputDecoration(
-                        labelText: "YYYY",
-                        labelStyle:
-                            TextStyle(fontSize: 25.0, color: Colors.white70)),
-                    style: TextStyle(color: Colors.white70, fontSize: 25.0),
-                    keyboardType: TextInputType.number,
-                    controller: year,
-                  ),
-                )),
-                Expanded(
-                    child: Container(
-                  child: TextField(
-                    decoration: InputDecoration(
-                        labelText: "MM",
-                        labelStyle:
-                            TextStyle(fontSize: 25.0, color: Colors.white70)),
-                    keyboardType: TextInputType.number,
-                    style: TextStyle(color: Colors.white70, fontSize: 25.0),
-                    controller: month,
-                  ),
-                )),
-                Expanded(
-                    child: Container(
-                  margin: EdgeInsets.only(right: 20.0),
-                  child: TextField(
-                    decoration: InputDecoration(
-                        labelText: "DD",
-                        labelStyle:
-                            TextStyle(fontSize: 25.0, color: Colors.white70)),
-                    keyboardType: TextInputType.number,
-                    style: TextStyle(color: Colors.white70, fontSize: 25.0),
-                    controller: day,
-                  ),
-                )),
-                Expanded(
-                    child: Container(
-                  child: IconButton(
-                    icon: Icon(Icons.search),
-                    onPressed: () {
-                      //getDate();
-                      if ((year.text == null || year.text.length != 4) ||
-                          (month.text == null || month.text.length != 2) ||
-                          (day.text == null || day.text.length != 2)) {
-                        _showMessage(
-                            context,
-                            Text(
-                              "All the fields are required to be filled with appropriate values",
-                              style: TextStyle(
-                                  fontSize: 20.0, color: Colors.white70),
-                            ));
-                      } else {
-                        final models =
-                            DateModel(year.text, month.text, day.text);
+        body: updateScores(_yearEntered == null ? "2015" : _yearEntered,
+            _monthEntered == null ? "07" : _monthEntered,
+            _dayEntered == null ? "29": _dayEntered));
+  }
+  // Future Class
+  Future<Map> getScoreResults(String year, String month, String day) async {
+    String apiUrl = "http://gd2.mlb.com/components/game/mlb/year_" +
+        year +
+        "/month_" +
+        month +
+        "/day_" +
+        day +
+        "/master_scoreboard.json";
+    http.Response response = await http.get(apiUrl);
+    if (response.body.toString() != null) {
+      return json.decode(response.body);
+    }
+  }
+  // Future Builder
 
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (context) =>
-                                Screen(game: game, models: models),
-                            settings: RouteSettings(arguments: models)));
-                      }
-                    },
-                    color: Colors.blue,
-                  ),
-                ))
-              ],
-            ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 5.0),
-              child: myFavourite(game, 'home'),
-            ),
-            Padding(padding: EdgeInsets.only(bottom: 3.0)),
-            Expanded(
-                child: ListView.builder(
-                    itemCount: game.length,
-                    padding: EdgeInsets.all(16.0),
-                    itemBuilder: (BuildContext context, int position) {
-                      return Container(
-                        alignment: Alignment.center,
-                        child: Wrap(
-                          alignment: WrapAlignment.center,
-                          children: [
-                            Padding(padding: EdgeInsets.only(bottom: 5.0)),
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                GestureDetector(
-                                  child: Center(
-                                    child: winnersHome(game, position)
-                                  ),
-                                  onTap: () {
-                                    _showMessage(
-                                        context,
-                                        Results(
-                                            game[position]['linescore']
-                                                ['inning'],
-                                            game[position],
-                                            'home'));
-                                  },
-                                ),
-                                GestureDetector(
-                                  child: Center(
-                                    child: winnersAway(game, position),
-                                  ),
-                                  onTap: () {
-                                    _showMessage(
-                                        context,
-                                        Results(
-                                            game[position]['linescore']
-                                                ['inning'],
-                                            game[position],
-                                            'away'));
-                                  },
-                                ),
-                              ],
-                            ),
-                            Divider(
-                              color: Colors.grey,
-                            ),
-                          ],
-                        ),
-                      );
-                    }))
-          ],
-        ));
+  Widget updateScores(String year, String month, String day){
+    return FutureBuilder(
+        future: getScoreResults(year, month, day),
+        builder: (BuildContext context, AsyncSnapshot<Map> snapshot){
+          if(snapshot.hasData && snapshot.data['data']['games']['game'] == null){
+            return new Container(
+              child: Center(
+                child: Text(" No Match Today\n ${_yearEntered == null ? '2015' : _yearEntered}/"
+                    "${_monthEntered == null ? '07' : _monthEntered}/${_dayEntered == null ? '29' : _dayEntered}", style: TextStyle(fontSize: 40.0, color: Colors.white),),
+              ),
+            );
+          }
+          else if(snapshot.hasData){
+            Map content = snapshot.data;
+            return mainBody(content);
+          }
+          else if(snapshot.hasError){
+            return new Container(
+              child: Center(
+                child: Text("${snapshot.error.toString()} Failed...", style: TextStyle(fontSize: 35.0, color: Colors.white),),
+              ),
+            );
+          }
+          else{
+            return new Container(
+              alignment: Alignment.center,
+              child: SizedBox(
+                child: CircularProgressIndicator(),
+                width: 160,
+                height: 160,
+              ),
+            );
+          }
+        });
   }
 
   //
-  void _showMessage(BuildContext context, Widget message) {
+  void _showMessage(BuildContext context, Widget message, String titile) {
     var alert = AlertDialog(
       title: Text(
-        "Attention",
+        titile,
         style: TextStyle(color: Colors.white, fontSize: 20.0),
       ),
       backgroundColor: Colors.black,
@@ -234,7 +164,7 @@ class _ScreenState extends State<Screen> {
       bold = Text(
         ":\t${result[position]['linescore']['r']['away'].toString()} \t${result[position]['away_team_name'].toString()}",
         style: TextStyle(
-            fontSize: 23.0, color: Colors.grey, fontWeight: FontWeight.w900,),
+          fontSize: 23.0, color: Colors.grey, fontWeight: FontWeight.w900,),
       );
     }
     else{
@@ -376,7 +306,7 @@ class _ScreenState extends State<Screen> {
           results[i]['away_team_name'].toString() == "Blue Jays") {
         check = true;
         home_team.add(Container(
-          margin: EdgeInsets.only(right: 5.0),
+          margin: EdgeInsets.only(right: 10.0),
           child: Text(
             "${results[i]['home_team_name'].toString()}",
             style: TextStyle(
@@ -505,10 +435,84 @@ class _ScreenState extends State<Screen> {
       return Container(
         alignment: Alignment.center,
         child: Text(
-          "No Games Today",
-          style: TextStyle(fontSize: 50.0, color: Colors.white70),
+          "Blue Jay has no game today",
+          style: TextStyle(fontSize: 30.0, color: Colors.white70),
         ),
       );
     }
   }
+  //
+
+  Widget mainBody(Map content){
+    var game = content['data']['games']['game'];
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0)),
+        Container(
+          margin: EdgeInsets.symmetric(horizontal: 5.0),
+          alignment: Alignment.centerRight,
+          child: myFavourite(game, 'home'),
+        ),
+        Container(
+          child: Text("Date: ${_yearEntered == null ? '2015' : _yearEntered}/"
+              "${_monthEntered == null ? '07' : _monthEntered}/${_dayEntered == null ? '29' : _dayEntered}",
+            style: TextStyle(color: Colors.white, fontSize: 23.0),),
+        ),
+        Padding(padding: EdgeInsets.only(bottom: 3.0)),
+        Expanded(
+            child: ListView.builder(
+                itemCount: game.length,
+                padding: EdgeInsets.all(16.0),
+                itemBuilder: (BuildContext context, int position) {
+                  return Container(
+                    alignment: Alignment.center,
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      children: [
+                        Padding(padding: EdgeInsets.only(bottom: 5.0)),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              child: Center(
+                                  child: winnersHome(game, position)
+                              ),
+                              onTap: () {
+                                _showMessage(context, Results(
+                                    game[position]['linescore']
+                                    ['inning'],
+                                    game[position],
+                                    'home'),"Details");
+                              },
+                            ),
+                            GestureDetector(
+                              child: Center(
+                                child: winnersAway(game, position),
+                              ),
+                              onTap: () {
+                                _showMessage(
+                                    context,
+                                    Results(
+                                        game[position]['linescore']
+                                        ['inning'],
+                                        game[position],
+                                        'away'), "Details");
+                              },
+                            ),
+                          ],
+                        ),
+                        Divider(
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  );
+                }))
+      ],
+    );
+  }
+
 }
