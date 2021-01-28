@@ -1,6 +1,6 @@
-#Ideamasn test 
+# Ideamasn test 
 This project is embedded with folder of images of interfaces.
-##The functionality of each interfaces discussed below:
+## The functionality of each interfaces discussed below:
 * Splash screen will firstly display while populating data from rest api. 
 * Home screen to display all the matches having for the specific day. By default, it'll load the default date which is July 29th 2015. After input of specific date it'll change and populate the data for the date supplied.
   * At the top of home screen, favourite team Blue Jays match will be displayed there with the team they were played against and their results. If they don't have game that day, It'll display no game today. 
